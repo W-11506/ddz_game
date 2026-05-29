@@ -61,6 +61,7 @@ module.exports = function(roominfo,player){
     that.cur_push_card_list = [] //当前玩家出牌列表
     that.last_push_card_list = [] //玩家上一次出的牌
     that.last_push_card_accountid = 0  //最后一个出牌的accountid
+    that.cur_chu_card_accountid = 0
     const changeState = function(state){
         if(that.state==state){
             return   
@@ -306,6 +307,10 @@ module.exports = function(roominfo,player){
       const turnchuCard = function(){
       
         var cur_chu_card_player = that.playing_cards.pop()
+        if(cur_chu_card_player==undefined){
+            return
+        }
+        that.cur_chu_card_accountid = cur_chu_card_player._accountID
         for(var i=0;i<that._player_list.length;i++){
               //通知下一个出牌的玩家
               that._player_list[i].SendChuCard(cur_chu_card_player._accountID)
@@ -315,6 +320,9 @@ module.exports = function(roominfo,player){
     //客户端发送到服务器:出牌消息
     that.playerBuChuCard = function(player,data){
        
+        if(player && that.cur_chu_card_accountid != player._accountID){
+            return
+        }
         //一轮出牌完毕，调用这个函数重置出牌数组
         if(that.playing_cards.length==0){
             resetChuCardPlayer()
@@ -347,6 +355,16 @@ module.exports = function(roominfo,player){
     //玩家出牌
     that.playerChuCard = function(player,data,cb){
         console.log("playerChuCard"+JSON.stringify(data))
+        if(that.cur_chu_card_accountid != player._accountID){
+            resp = {
+                data:{
+                      account:player._accountID,
+                      msg:"当前不是你出牌",
+                    }
+            }
+            cb(-3,resp)
+            return
+        }
          //当前没有出牌,不用走下面判断
          if(data==0){
             resp = {
