@@ -1,0 +1,32 @@
+diff --git a/ddz_server_node/game/room.js b/ddz_server_node/game/room.js
+index eebebdb..9447cb9 100644
+--- a/ddz_server_node/game/room.js
++++ b/ddz_server_node/game/room.js
+@@ -347,6 +347,27 @@ module.exports = function(roominfo,player){
+     //玩家出牌
+     that.playerChuCard = function(player,data,cb){
+         console.log("playerChuCard"+JSON.stringify(data))
++
++        // --- 修复代码：增加回合校验 ---
++        var master_index = 0;
++        for (var i = that._player_list.length - 1; i >= 0; i--) {
++            if (that._player_list[i]._accountID == that.room_master._accountID) {
++                master_index = i;
++            }
++        }
++        var cur_index = (master_index + 2 - that.playing_cards.length) % that._player_list.length;
++        if (that._player_list[cur_index]._accountID !== player._accountID) {
++            var resp = {
++                data: {
++                    account: player._accountID,
++                    msg: "还没轮到您出牌",
++                }
++            };
++            cb(-1, resp);
++            return;
++        }
++        // --- 修复代码结束 ---
++
+          //当前没有出牌,不用走下面判断
+          if(data==0){
+             resp = {
