@@ -347,6 +347,19 @@ module.exports = function(roominfo,player){
     //玩家出牌
     that.playerChuCard = function(player,data,cb){
         console.log("playerChuCard"+JSON.stringify(data))
+        if(that.playing_cards.length > 0){
+            var cur_player = that.playing_cards[that.playing_cards.length - 1]
+            if(cur_player._accountID != player._accountID){
+                resp = {
+                    data:{
+                          account:player._accountID,
+                          msg:"不是你的回合",
+                        }
+                }
+                cb(-3,resp)
+                return
+            }
+        }
          //当前没有出牌,不用走下面判断
          if(data==0){
             resp = {
