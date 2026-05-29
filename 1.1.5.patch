@@ -1,0 +1,29 @@
+//玩家出牌
+that.playerChuCard = function(player,data,cb){
+    console.log("playerChuCard"+JSON.stringify(data))
+    
+    // 新增校验：确保是当前回合的玩家才能出牌
+    if(that.playing_cards.length === 0){
+        resp = {
+            data:{
+                  account:player._accountID,
+                  msg:"当前不是出牌回合",
+            }
+        }
+        cb(-3,resp)
+        return
+    }
+    var curPlayer = that.playing_cards[that.playing_cards.length - 1]
+    if(curPlayer._accountID !== player._accountID){
+        resp = {
+            data:{
+                  account:player._accountID,
+                  msg:"当前不是你的出牌回合",
+            }
+        }
+        cb(-3,resp)
+        return
+    }
+    
+    //当前没有出牌,不用走下面判断
+    if(data==0){
