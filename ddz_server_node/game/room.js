@@ -347,6 +347,30 @@ module.exports = function(roominfo,player){
     //玩家出牌
     that.playerChuCard = function(player,data,cb){
         console.log("playerChuCard"+JSON.stringify(data))
+        
+        if(that.playing_cards.length == 0){
+            resp = {
+                data:{
+                      account:player._accountID,
+                      msg:"当前回合无效",
+                    }
+            }
+            cb(-3,resp)
+            return
+        }
+        
+        var cur_turn_player = that.playing_cards[that.playing_cards.length - 1]
+        if(cur_turn_player._accountID !== player._accountID){
+            resp = {
+                data:{
+                      account:player._accountID,
+                      msg:"还没轮到你出牌",
+                    }
+            }
+            cb(-4,resp)
+            return
+        }
+        
          //当前没有出牌,不用走下面判断
          if(data==0){
             resp = {
@@ -358,6 +382,7 @@ module.exports = function(roominfo,player){
             cb(0,resp)
             //让下一个玩家出牌,并发送消息
             that.playerBuChuCard(null,null)
+            return
         }
         //that.cur_push_card_list = data
         //先判断自己是否有这么几张牌
